@@ -1,0 +1,2 @@
+Please install intel.xdk.camera plugin before you run the test, cause this test will use camera apis.
+Upload server is located in upload_server folder, go the directory and run "node server.js" to start it.

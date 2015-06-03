@@ -1,11 +1,86 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright 2015 Intel Corporation
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file 
+except in compliance with the License. You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the 
+License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
+either express or implied. See the License for the specific language governing permissions 
+and limitations under the License
+-->
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-  id="intel.xdk.file"
-  version="0.0.1">
-  <name>Intel XDK File</name>
-  <description>Intel XDK File Plugin</description>
-  <license>Apache 2.0</license>
-  <keywords>intel,xdk,file</keywords>
+    id="intel.xdk.file"
+    version="1.1.1">
+    <name>Intel XDK File</name>
+    <description>Intel XDK File Plugin</description>
+    <license>Apache 2.0</license>
+    <keywords>Intel XDK, intel.xdk, file</keywords>
+    <repo>https://github.com/01org/cordova-plugin-intel-xdk-file.git</repo>
+    <issue></issue>
+
+    <js-module src="www/file.js" name="File">
+    	<clobbers target="intel.xdk.file"></clobbers>
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+    	<config-file target="res/xml/config.xml" parent="/*">
+    		<feature name="IntelXDKFile">
+    			<param name="android-package" value="com.intel.xdk.file.File"></param>
+    		</feature>
+    	</config-file>
+
+        <source-file src="src/android/File.java" target-dir="src/com/intel/xdk/file" />
+    </platform>
+
+    <!-- windows8 -->
+    <platform name="windows8">
+        <config-file target="package.appxmanifest" parent="/*/Capabilities">
+            <Capability Name="picturesLibrary" />
+        </config-file>
+        <js-module src="src/windows8/fileProxy.js" name="fileProxy">
+            <clobbers target=""></clobbers>
+        </js-module>
+    </platform>
+
+    <!-- iOS -->
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="IntelXDKFile">
+                <param name="ios-package" value="XDKFile" />
+            </feature>
+        </config-file>
+    
+        <header-file src="src/ios/XDKFile.h" />
+        <source-file src="src/ios/XDKFile.m" />
+        <header-file src="src/ios/XDKFileUploadRequest.h" />
+        <source-file src="src/ios/XDKFileUploadRequest.m" />
+        <header-file src="src/ios/LFHTTPRequest.h" />
+        <source-file src="src/ios/LFHTTPRequest.m" compiler-flags="-fno-objc-arc" />
+        <header-file src="src/ios/LFSiteReachability.h" />
+        <source-file src="src/ios/LFSiteReachability.m" compiler-flags="-fno-objc-arc" />
+        <header-file src="src/ios/LFWebAPIKit.h" />
+        <header-file src="src/ios/NSData+LFHTTPFormExtensions.h" />
+        <source-file src="src/ios/NSData+LFHTTPFormExtensions.m" compiler-flags="-fno-objc-arc" />
+        
+        <framework src="CFNetwork.framework" />
+        <framework src="SystemConfiguration.framework" />
+</platform>
+
+    <!-- Windows Phone 8 -->
+    <platform name="wp8">
+        <source-file src="src/wp8/File.cs" target-dir="" />
+
+        <config-file target="config.xml" parent="/*">
+            <feature name="IntelXDKFile">
+                <param name="wp-package" value="IntelXDKFile" />
+            </feature>
+        </config-file>
+    </platform>
 
 </plugin>

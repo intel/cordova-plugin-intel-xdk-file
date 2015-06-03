@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <!--meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" /-->
+        <meta name="viewport" content="width=device-width"/>
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>File</title>
+    </head>
+    <body>
+        <div class="app">
+            <h1>Apache Cordova</h1>
+            <div id="deviceready" class="blink">
+                <p class="event listening">Connecting to Device</p>
+                <p class="event received">Device is Ready</p>
+            </div>
+            <p id="progress"></p>
+            <button onclick="upload()">Take picture and upload</button>
+            <button onclick="cancel()">Cancel the upload</button>
+            <button onclick="uploadPictureToServer()">Upload (Windows 8 ONLY)</button>
+        </div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript">
+            app.initialize();
+
+            if(typeof navigator.notification != "undefined") {
+                alert = navigator.notification.alert;
+            }
+        
+            //Please install intel.xdk.camera plugin before you run the test case.
+            //Please start upload server before you run the test. This is a simple node.js upload server in the test/upload_server directory, or you can use your own server. About how to use the node.js upload server, please refer to README.
+            
+            //Replace the UPLOAD_URL to your own IP address.
+            //var UPLOAD_URL = "http://localhost:8000";
+            var UPLOAD_URL = "http://www.johnphughes.net/apiTesting/apiTestingUpload.php";
+
+            //file events
+            document.addEventListener('intel.xdk.file.upload.busy', uploadBusy);
+            document.addEventListener('intel.xdk.file.upload', uploadComplete);
+            document.addEventListener('intel.xdk.file.upload.cancel', uploadCancelled);
+
+            function upload() {
+                //camera event
+                document.addEventListener('intel.xdk.camera.picture.add', onPictureTaken);
+
+                intel.xdk.camera.takePicture(50, false, 'jpg');
+            }
+
+            function onPictureTaken(){
+                var pictureList = intel.xdk.camera.getPictureList();
+                if(pictureList.length > 0){
+                    var pictureURL = intel.xdk.camera.getPictureURL(pictureList[pictureList.length-1]);
+                    intel.xdk.file.uploadToServer(pictureURL, UPLOAD_URL, "", "image/jpeg", "updateUploadProgress");
+                }
+            }
+
+            function updateUploadProgress(bytesSent,totalBytes){
+                if(totalBytes>0)
+                    currentProgress=(bytesSent/totalBytes)*100;
+                document.getElementById("progress").innerHTML=currentProgress+"%";
+            }
+
+            function cancel(){
+                intel.xdk.file.cancelUpload();
+            }
+
+            function uploadBusy(evt)
+            {
+                alert("Sorry, a file is already being uploaded");
+            }
+
+            function uploadComplete(evt)
+            {
+                if(evt.success==true)
+                {
+                    alert("File "+evt.localURL+" was uploaded");
+                }
+                else {
+                    alert("Error uploading file "+evt.message);
+                }
+            }
+
+            function uploadCancelled(evt)
+            {
+                alert("File upload was cancelled "+evt.localURL);
+            }       
+
+
+            //Test cases for Windows8 platform
+            function uploadPictureToServer(){
+                Windows.Storage.KnownFolders.picturesLibrary.getFilesAsync().done(
+                    function success(files) {
+                        if (files != null) {
+                            var localURL = files[Math.floor((Math.random() * files.length-1) + 1)].path;
+                            var uploadServer = UPLOAD_URL;
+                            var folderName = 'PictruesLibrary';
+                            var mimeType = 'image/jpg';
+                            var success = 'uploadSuccess';
+
+                            intel.xdk.file.uploadToServer(localURL, uploadServer, folderName, mimeType, updateUploadProgress);
+                        }
+                    }, function error(e){
+                        alert(e);
+                    });
+            }
+
+            function uploadSuccess(){
+                var label = document.getElementsByClassName('event received');
+                label[0].innerHTML = 'The picture uploaded successfully!';
+            }
+        </script>
+    </body>
+</html>
