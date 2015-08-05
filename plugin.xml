@@ -38,6 +38,16 @@ and limitations under the License
         <source-file src="src/android/File.java" target-dir="src/com/intel/xdk/file" />
     </platform>
 
+    <!-- windows -->
+    <platform name="windows">
+        <config-file target="package.appxmanifest" parent="/*/Capabilities">
+            <Capability Name="picturesLibrary" />
+        </config-file>
+        <js-module src="src/windows8/fileProxy.js" name="fileProxy">
+            <clobbers target=""></clobbers>
+        </js-module>
+    </platform>
+
     <!-- windows8 -->
     <platform name="windows8">
         <config-file target="package.appxmanifest" parent="/*/Capabilities">
@@ -70,7 +80,7 @@ and limitations under the License
         
         <framework src="CFNetwork.framework" />
         <framework src="SystemConfiguration.framework" />
-</platform>
+    </platform>
 
     <!-- Windows Phone 8 -->
     <platform name="wp8">
