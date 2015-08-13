@@ -51,6 +51,7 @@ module.exports = {
             });
 
         function UploadOp() {
+            var me = module.exports;
             var upload = null;
             var promise = null;
 
@@ -71,20 +72,30 @@ module.exports = {
                     // Start the upload and persist the promise to be able to cancel the upload.
                     promise = upload.startAsync().then(
                         function () {
-                            var e = document.createEvent('Events');
+                            /*var e = document.createEvent('Events');
                             e.initEvent('intel.xdk.file.upload', true, true);
                             e.success = true;
                             e.localURL = localURL;
-                            document.dispatchEvent(e);
+                            document.dispatchEvent(e);*/
+                            me.createAndDispatchEvent("intel.xdk.file.upload",
+                                {
+                                    success: true,
+                                    localURL: localURL
+                                });
 
                             //                  //Success callback.
                             //window[uploadProgressCallback]();
                         }, function (err) {
-                            var e = document.createEvent('Events');
+                            /*var e = document.createEvent('Events');
                             e.initEvent('intel.xdk.file.upload.cancel', true, true);
                             e.success = true;
                             e.localURL = localURL;
-                            document.dispatchEvent(e);
+                            document.dispatchEvent(e);*/
+                            me.createAndDispatchEvent("intel.xdk.file.upload.cancel",
+                                {
+                                    success: true,
+                                    localURL: localURL
+                                });
                         }, function () {
                             var currentProgress = upload.progress;
                             uploadProgressCallback(currentProgress.bytesSent, currentProgress.totalBytesToSend);
@@ -101,11 +112,29 @@ module.exports = {
     },
 
     cancelUpload:function(){
-        module.exports.promise.cancel();
+        /*module.exports.promise.cancel();
         var e = document.createEvent('Events');
         e.initEvent('intel.xdk.file.upload.cancel', true, true);
         e.success = true;
         e.localURL = localURL;
+        document.dispatchEvent(e);*/
+        var me = module.exports;
+        me.promise.cancel();
+        me.createAndDispatchEvent("intel.xdk.file.upload.cancel",
+            {
+                success: true,
+                localURL: localURL
+            });
+    },
+
+    createAndDispatchEvent: function (name, properties) {
+        var e = document.createEvent('Events');
+        e.initEvent(name, true, true);
+        if (typeof properties === 'object') {
+            for (key in properties) {
+                e[key] = properties[key];
+            }
+        }
         document.dispatchEvent(e);
     }
 };
